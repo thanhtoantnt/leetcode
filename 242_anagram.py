@@ -21,6 +21,13 @@ class Solution:
             elif t_hash_table[char] != value:
                 return False
         
+        # Second way:
+        # for char in s_hash_table:
+        #     if s_hash_table[char] != t_hash_table.get(char, 0):
+        #         return False
+
+        # Third way
+        # return s_hash_table == t_hash_table
         return True
 
 # Test the solution
