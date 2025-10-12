@@ -33,8 +33,22 @@ class Solution:
 
         return results
 
+from typing import List
+from collections import defaultdict
+
+class Solution2:
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        anagram_map = defaultdict(list)
+        
+        for word in strs:
+            # Create a key that represents the character frequency
+            key = ''.join(sorted(word))
+            anagram_map[key].append(word)
+        
+        return list(anagram_map.values())
+
 if __name__ == "__main__":
-    sol = Solution()
+    sol = Solution2()
     print(sol.groupAnagrams(["eat","tea","tan","ate","nat","bat"]))
     # Expected: [["bat"],["nat","tan"],["ate","eat","tea"]]
 
