@@ -11,7 +11,6 @@ class Solution:
         # hash_table of the character in the input string
         hash_table = {}
 
-        
         for index, char in enumerate(string):
             if char not in hash_table:
                 # end is index
