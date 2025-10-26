@@ -32,3 +32,31 @@ class Solution:
                     queue.append(element.left)
         
         return result
+
+from collections import deque
+
+class SolutionOpt:
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        if not root:
+            return []
+        
+        result = []
+        queue = deque([root])
+        
+        while queue:
+            level_size = len(queue)
+            
+            # The first node in the current level is the rightmost visible node
+            result.append(queue[0].val)
+            
+            # Process all nodes in the current level
+            for _ in range(level_size):
+                node = queue.popleft()
+                
+                # Add right child first, then left (ensures rightmost node is first in next level)
+                if node.right:
+                    queue.append(node.right)
+                if node.left:
+                    queue.append(node.left)
+        
+        return result
