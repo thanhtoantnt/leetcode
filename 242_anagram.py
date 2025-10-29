@@ -30,10 +30,17 @@ class Solution:
         # return s_hash_table == t_hash_table
         return True
 
+class SolutionNeetcode:
+    def isAnagram(self, s: str, t: str) -> bool:
+        return ''.join(sorted(s)) == ''.join(sorted(t))
+
 # Test the solution
 if __name__ == "__main__":
     sol = Solution()
-    print(sol.isAnagram("anagram", "nagaram"))  # True
-    print(sol.isAnagram("rat", "car"))          # False  
-    print(sol.isAnagram("abc", "abcd"))         # False (length check catches this)
-    print(sol.isAnagram("aacc", "ccac"))        # False (different counts)
+    # print(sol.isAnagram("anagram", "nagaram"))  # True
+    # print(sol.isAnagram("rat", "car"))          # False  
+    # print(sol.isAnagram("abc", "abcd"))         # False (length check catches this)
+    # print(sol.isAnagram("aacc", "ccac"))        # False (different counts)
+    s1 = "abzhfe"
+    # print("".join(sorted(s1)))
+    print(sorted(s1))
