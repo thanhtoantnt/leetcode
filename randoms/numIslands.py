@@ -16,7 +16,7 @@ def numberOfIslands(grid: List[List[str]]) -> int:
         
         grid[i][j] = "0"
         DFS(i+1, j)
-        DFS(i-1, 0)
+        DFS(i-1, j)
         DFS(i, j + 1)
         DFS(i, j - 1)
     
