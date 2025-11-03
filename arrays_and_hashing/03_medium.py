@@ -1,20 +1,50 @@
 class Solution:
     def lengthOfLongestSubstring(self, s: str) -> int:
+        """
+        Finds the length of the longest substring without repeating characters.
         
+        Approach:
+        - Use sliding window technique with a hash table
+        - Maintain a window [start, current_index] with no repeating characters
+        - When a duplicate character is found, move start pointer to right of previous occurrence
+        - Keep track of maximum window size seen so far
+        
+        Time Complexity: O(n) where n is the length of the string
+        Space Complexity: O(min(m,n)) where m is the size of the character set
+        """
+        # Hash table to store the most recent index of each character
         htbl = {}
+        
+        # Start of the current window (left boundary)
         start = 0
+        
+        # Length of the longest substring found so far
         longest_substring = 0
 
         for index in range(len(s)):
+            # If current character was seen before and is within current window
             if s[index] in htbl:
+                # Move start to the right of the previous occurrence to avoid duplicates
+                # Use max to ensure start doesn't move backward
                 start = max(start, htbl[s[index]] + 1)
 
+            # Update the most recent index of current character
             htbl[s[index]] = index
+            
+            # Update the maximum length if current window is larger
             longest_substring = max(longest_substring, index + 1 - start)
 
         return longest_substring
 
 def run_length_test(s, expected, test_name):
+    """
+    Tests the lengthOfLongestSubstring function.
+    
+    Args:
+        s: Input string to analyze
+        expected: Expected length of longest substring without repeating characters
+        test_name: Name/description of the test case
+    """
     solution = Solution()
     result = solution.lengthOfLongestSubstring(s)
     
