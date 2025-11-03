@@ -1,145 +1,117 @@
-from collections import defaultdict
-
-# Pass tests but time limit exceeded
-class Solution1:
-    def includedSubstr(self, s:str, t:str):
-        if len(s) < len(t):
-            return False
-        
-        htbl_t = {}
-
-        for char in t:
-            htbl_t[char] = htbl_t.get(char, 0) + 1
-        
-        for char in s:
-            if char in htbl_t:
-                htbl_t[char] = htbl_t.get(char) - 1
-                if htbl_t[char] == 0:
-                    htbl_t.pop(char)
-
-        ret = len(htbl_t) == 0
-        # print(f"s = {s}, t = {t}, ret = {ret}")
-        return ret
-
-    def minWindow(self, s: str, t: str) -> str:
-        substr = ""
-        # first find the window
-        start = 0
-        index = 0
-        while index < len(s):
-            if not self.includedSubstr(s[start:(index+1)], t):
-                index = index + 1
-                continue
-            
-            # a window is found
-            # minimize the windows
-
-            # print(f"substr: {s[start:(index+1)]}")
-            start = start + 1
-            while self.includedSubstr(s[start:(index+1)], t):
-                # print(f"substr loop: {s[start:(index+1)]}")
-                start = start + 1
-            
-            if substr == "" or index + 1 - (start - 1) < len(substr):
-                substr = s[(start - 1):(index+1)]
-            
-            index = index + 1
-        
-        return substr
-
-# pass Leetcode
 class Solution:
-    def check_included(self, hash_table):
-        return all(value <= 0 for value in hash_table.values())
-
     def minWindow(self, s: str, t: str) -> str:
-        substr = ""
-        htbl_t = {}
-
-        for char in t:
-            htbl_t[char] = htbl_t.get(char, 0) + 1
-
-        # first find the window
-        start = 0
-        for index, char in enumerate(s):
-            if char in htbl_t:
-                htbl_t[char] = htbl_t.get(char) - 1
-            
-            if not self.check_included(htbl_t):
-                continue
-            
-            # print(f"start = {start}, index = {index}")
-            start = start + 1
-            if s[start - 1] in htbl_t:
-                htbl_t[s[start - 1]] = htbl_t.get(s[start - 1]) + 1
-
-            while self.check_included(htbl_t):
-                # print(f"loop: start = {start}, index = {index}")
-
-                start = start + 1
-                if s[start - 1] in htbl_t:
-                    htbl_t[s[start - 1]] = htbl_t.get(s[start - 1]) + 1
-            
-            if substr == "" or index + 1 - (start - 1) < len(substr):
-                substr = s[(start - 1):(index+1)]
-                # print(f"substr = {substr}")
-            
-            index = index + 1
+        """
+        Finds the minimum window substring of s such that every character in t is included.
         
-        return substr
-
-# optimal solution
-class SolutionOpt:
-    def minWindow(self, s: str, t: str) -> str:
-        if not s or not t:
+        Problem Understanding:
+        - Given two strings s and t
+        - Find the minimum window in s that contains all characters of t (including duplicates)
+        - Return empty string if no such window exists
+        - If multiple valid windows exist, return the one with leftmost starting index
+        
+        Approach:
+        - Use sliding window technique with two pointers
+        - Maintain a frequency map of characters in t
+        - Expand window by moving right pointer, shrink when valid
+        - Track the minimum valid window found
+        - Use counter to track how many unique characters have met required frequency
+        
+        Time Complexity: O(|s| + |t|) where |s| and |t| are string lengths
+        Space Complexity: O(|s| + |t|) for the hash maps
+        
+        Args:
+            s: Input string to search in
+            t: Pattern string containing required characters
+            
+        Returns:
+            Minimum window substring that contains all characters of t
+        """
+        if not s or not t or len(s) < len(t):
             return ""
         
-        # Frequency count for characters in t
-        t_count = defaultdict(int)
+        # Create frequency map for characters in t
+        t_count = {}
         for char in t:
-            t_count[char] += 1
+            t_count[char] = t_count.get(char, 0) + 1
         
-        # Variables to track the window
-        left = 0
-        min_left = 0
-        min_len = float('inf')
-        required = len(t_count)  # Number of unique characters we need to match
-        formed = 0  # Number of unique characters currently matched
+        # Number of unique characters in t that need to be present in window
+        required = len(t_count)
         
-        # Frequency count for current window
-        window_count = defaultdict(int)
+        # Left and right pointers of sliding window
+        left = right = 0
         
-        for right, char in enumerate(s):
+        # Number of unique characters in current window that match required frequency
+        formed = 0
+        
+        # Current window character count
+        window_count = {}
+        
+        # Result tracking: (window_length, left, right)
+        result = float('inf'), None, None
+        
+        while right < len(s):
             # Add current character to window
-            window_count[char] += 1
+            char = s[right]
+            window_count[char] = window_count.get(char, 0) + 1
             
-            # Check if current character completes a requirement
+            # Check if current character's frequency matches required frequency in t
             if char in t_count and window_count[char] == t_count[char]:
                 formed += 1
             
-            # Try to shrink the window while it's still valid
+            # Try to contract window until it ceases to be valid
             while left <= right and formed == required:
-                # Update minimum window
-                if right - left + 1 < min_len:
-                    min_len = right - left + 1
-                    min_left = left
+                char = s[left]
                 
-                # Remove left character from window
-                left_char = s[left]
-                window_count[left_char] -= 1
+                # Update result if current window is smaller
+                if right - left + 1 < result[0]:
+                    result = (right - left + 1, left, right)
                 
-                # Check if removing broke a requirement
-                if left_char in t_count and window_count[left_char] < t_count[left_char]:
+                # Remove leftmost character from window
+                window_count[char] -= 1
+                if char in t_count and window_count[char] < t_count[char]:
                     formed -= 1
                 
                 left += 1
+            
+            # Expand window
+            right += 1
         
-        return "" if min_len == float('inf') else s[min_left:min_left + min_len]
+        # Return the minimum window substring
+        return "" if result[0] == float('inf') else s[result[1]:result[2] + 1]
 
-if __name__ == "__main__":
-    sol = Solution()
-    print(sol.minWindow("ADOBECODEBANC", "ABC"))  # Expected: "BANC"
-    # print(sol.minWindow("a", "a"))                # Expected: "a"
-    # print(sol.minWindow("a", "aa"))               # Expected: ""
-    # print(sol.minWindow("ab", "a"))               # Expected: "a"
-    # print(sol.minWindow("abc", "ac"))             # Expected: "abc"
+def run_min_window_test(s, t, expected, test_name):
+    """
+    Tests the minWindow function.
+    
+    Args:
+        s: Input string to search in
+        t: Pattern string containing required characters
+        expected: Expected minimum window substring
+        test_name: Name/description of the test case
+    """
+    solution = Solution()
+    result = solution.minWindow(s, t)
+    
+    print(f"{test_name}:")
+    print(f"  Input: s = '{s}', t = '{t}'")
+    print(f"  Expected: '{expected}'")
+    print(f"  Got: '{result}'")
+    print(f"  Pass: {result == expected}")
+    print()
+
+# Run test cases
+run_min_window_test("ADOBECODEBANC", "ABC", "BANC", "Example 1: 'ADOBECODEBANC', 'ABC' -> 'BANC'")
+run_min_window_test("a", "a", "a", "Example 2: 'a', 'a' -> 'a'")
+run_min_window_test("a", "aa", "", "Example 3: 'a', 'aa' -> '' (not enough 'a's)")
+run_min_window_test("ab", "b", "b", "Edge case: 'ab', 'b' -> 'b'")
+run_min_window_test("abc", "cba", "abc", "Edge case: 'abc', 'cba' -> 'abc'")
+run_min_window_test("bba", "ab", "ba", "Edge case: 'bba', 'ab' -> 'ba'")
+run_min_window_test("", "a", "", "Edge case: Empty s -> ''")
+run_min_window_test("a", "", "", "Edge case: Empty t -> ''")
+run_min_window_test("abc", "def", "", "Edge case: No match -> ''")
+run_min_window_test("aab", "aab", "aab", "Edge case: s equals t -> 'aab'")
+run_min_window_test("abc", "a", "a", "Edge case: Single character in t")
+run_min_window_test("abca", "aa", "abca", "Edge case: Multiple same characters in t")
+run_min_window_test("bba", "ab", "ba", "Edge case: Repeated characters")
+run_min_window_test("abcdefghijklmnopqrstuvwxyz", "cba", "abc", "Edge case: Long string with 'cba'")
+run_min_window_test("mississippi", "sippi", "sippi", "Edge case: 'mississippi', 'sippi' -> 'sippi'")
