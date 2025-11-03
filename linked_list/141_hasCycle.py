@@ -1,5 +1,11 @@
 class ListNode:
     def __init__(self, x):
+        """
+        Definition for singly-linked list node.
+        
+        Args:
+            x: Value stored in the node
+        """
         self.val = x
         self.next = None
 
@@ -40,16 +46,41 @@ def create_cycled_list(arr, pos):
 
 class Solution:
     def hasCycle(self, head: ListNode) -> bool:
+        """
+        Detects if there is a cycle in the linked list using Floyd's Cycle Detection Algorithm.
+        
+        Problem Understanding:
+        - Given the head of a linked list
+        - Determine if there's a cycle (some node can be reached again by following next pointers)
+        - Return True if cycle exists, False otherwise
+        
+        Approach:
+        - Use Floyd's "Tortoise and Hare" algorithm (two-pointer technique)
+        - Slow pointer moves 1 step, fast pointer moves 2 steps
+        - If there's a cycle, fast pointer will eventually catch up to slow pointer
+        - If fast pointer reaches NULL, there's no cycle
+        
+        Time Complexity: O(n) where n is the number of nodes
+        Space Complexity: O(1) - only using two pointers
+        
+        Args:
+            head: Head of the linked list
+            
+        Returns:
+            True if there's a cycle, False otherwise
+        """
+        # Handle edge cases: empty list or single node
         if not head or not head.next:
             return False
         
-        slow = head
-        fast = head
+        # Initialize slow and fast pointers
+        slow = head  # Moves 1 step at a time
+        fast = head  # Moves 2 steps at a time
         
         # Move slow one step, fast two steps
         while fast and fast.next:
-            slow = slow.next
-            fast = fast.next.next
+            slow = slow.next          # Move slow pointer one step
+            fast = fast.next.next     # Move fast pointer two steps
             
             # If they meet, there's a cycle
             if slow == fast:
@@ -59,6 +90,15 @@ class Solution:
         return False
 
 def run_test_case(arr, pos, expected, test_name):
+    """
+    Tests the hasCycle function with different cycle configurations.
+    
+    Args:
+        arr: Array to create linked list from
+        pos: Position where cycle connects (-1 for no cycle)
+        expected: Expected result (True/False)
+        test_name: Name/description of the test case
+    """
     solution = Solution()
     head = create_cycled_list(arr, pos)
     result = solution.hasCycle(head)

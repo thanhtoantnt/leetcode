@@ -1,27 +1,62 @@
 class ListNode:
     def __init__(self, val=0, next=None):
+        """
+        Definition for singly-linked list node.
+        
+        Args:
+            val: Value stored in the node
+            next: Reference to the next node in the list
+        """
         self.val = val
         self.next = next
         
 class Solution:
     def mergeTwoLists(self, list1: ListNode, list2: ListNode) -> ListNode:
-        # Create a dummy node to simplify the logic
-        dummy = ListNode(0)
-        current = dummy
+        """
+        Merges two sorted linked lists into one sorted list by splicing nodes.
         
-        # Compare nodes from both lists
+        Problem Understanding:
+        - Given two sorted linked lists
+        - Merge them into one sorted list
+        - Return the head of the merged list
+        - Do not create new nodes, just rewire existing ones
+        
+        Approach:
+        - Use a dummy node to simplify edge case handling
+        - Compare values from both lists and attach smaller one
+        - Continue until one list is exhausted
+        - Attach remaining nodes from the non-empty list
+        
+        Time Complexity: O(m + n) where m, n are lengths of the two lists
+        Space Complexity: O(1) - only using constant extra space
+        
+        Args:
+            list1: Head of first sorted linked list
+            list2: Head of second sorted linked list
+            
+        Returns:
+            Head of the merged sorted linked list
+        """
+        # Create a dummy node to simplify the logic and handle edge cases
+        dummy = ListNode(0)
+        current = dummy  # Pointer to build the result list
+        
+        # Compare nodes from both lists and attach the smaller one
         while list1 and list2:
             if list1.val <= list2.val:
+                # Attach current node from list1
                 current.next = list1
-                list1 = list1.next
+                list1 = list1.next  # Move to next node in list1
             else:
+                # Attach current node from list2
                 current.next = list2
-                list2 = list2.next
+                list2 = list2.next  # Move to next node in list2
             
-            # Move the current pointer forward
+            # Move the current pointer forward in the result list
             current = current.next
         
-        # Attach remaining nodes (if any)
+        # Attach remaining nodes from either list (if any)
+        # Since both lists are sorted, remaining nodes are already in correct order
         current.next = list1 if list1 else list2
         
         # Return the merged list (skip the dummy node)
@@ -49,6 +84,15 @@ def linked_list_to_array(head):
     return result
 
 def run_merge_test(list1_arr, list2_arr, expected, test_name):
+    """
+    Tests the mergeTwoLists function with array inputs and outputs.
+    
+    Args:
+        list1_arr: First sorted array to convert to linked list
+        list2_arr: Second sorted array to convert to linked list
+        expected: Expected merged array
+        test_name: Name/description of the test case
+    """
     solution = Solution()
     list1 = create_linked_list(list1_arr)
     list2 = create_linked_list(list2_arr)
