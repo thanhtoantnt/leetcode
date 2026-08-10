@@ -1,0 +1,6 @@
+# Build cache (regeneratable from LeetCode API)
+.website_cache/
+
+# Python
+__pycache__/
+*.pyc

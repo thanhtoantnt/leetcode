@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LeetCode Tutor — Interactive Learning</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo"><div class="logo-icon">🎓</div>
+        <div class="logo-text">LeetCode<span>Tutor</span></div></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="ico">📊</span> Dashboard</button>
+      <button class="nav-item" data-view="roadmap"><span class="ico">🗺️</span> Learning Roadmap</button>
+      <button class="nav-item" data-view="browse"><span class="ico">📚</span> Browse Problems</button>
+      <button class="nav-item" data-view="solved"><span class="ico">✅</span> Your Solutions</button>
+      <button class="nav-item" data-view="progress"><span class="ico">📈</span> Progress Tracker</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="sidebarStats">Loading…</div>
+      <div style="margin-top:6px">4,000+ problems • runs locally</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="main-header">
+      <div class="search-wrap">
+        <span class="si">🔍</span>
+        <input id="globalSearch" placeholder="Search 4,000+ problems by name, ID, or topic…  (press /)">
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+    </div>
+
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div class="view active" id="dashboardView">
+        <div class="hero">
+          <h1>Welcome to your LeetCode Tutor 👋</h1>
+          <p>An interactive guide to <b>every</b> LeetCode problem. Learn patterns with a structured roadmap, read full problem statements, get progressive hints, study worked solutions, and practice in a built-in Python editor.</p>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <h2 class="section-title">🚀 Quick Start</h2>
+        <div class="roadmap-grid" id="quickStart"></div>
+      </div>
+
+      <!-- ROADMAP -->
+      <div class="view" id="roadmapView">
+        <h2 class="section-title">🗺️ Structured Learning Roadmap
+          <span class="muted">— master patterns in the right order (NeetCode 150 curriculum)</span></h2>
+        <div class="roadmap-grid" id="roadmapGrid"></div>
+      </div>
+
+      <!-- BROWSE -->
+      <div class="view" id="browseView">
+        <h2 class="section-title">📚 All Problems</h2>
+        <div class="filters" id="filterBar"></div>
+        <div class="problems-list" id="problemsList"></div>
+        <div class="empty" id="loadMoreWrap" style="padding:20px">
+          <button class="back-btn" id="loadMoreBtn" style="padding:10px 28px">Load more results</button>
+        </div>
+      </div>
+
+      <!-- SOLVED -->
+      <div class="view" id="solvedView">
+        <h2 class="section-title">✅ Your Solutions
+          <span class="muted" id="solvedCount"></span></h2>
+        <div class="problems-list" id="solvedList"></div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="view" id="progressView">
+        <h2 class="section-title">📈 Progress Tracker</h2>
+        <div id="progressContent"></div>
+      </div>
+
+      <!-- DETAIL -->
+      <div class="view" id="detailView">
+        <div class="detail-bar">
+          <button class="back-btn" id="detailBack">← Back</button>
+          <div class="detail-title" id="detailTitle"></div>
+          <a class="detail-extern" id="detailLink" target="_blank">Open on LeetCode ↗</a>
+        </div>
+        <div class="detail-content" id="detailContent">
+          <div class="empty"><div class="big spin">⏳</div>Loading problem…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

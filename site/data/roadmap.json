@@ -1,0 +1,290 @@
+[
+  {
+    "topic": "Arrays & Hashing",
+    "icon": "\ud83d\udd22",
+    "problems": [
+      1,
+      217,
+      242,
+      49,
+      347,
+      238,
+      128
+    ]
+  },
+  {
+    "topic": "Two Pointers",
+    "icon": "\u2194\ufe0f",
+    "problems": [
+      125,
+      167,
+      15,
+      11,
+      42,
+      75
+    ]
+  },
+  {
+    "topic": "Sliding Window",
+    "icon": "\ud83e\ude9f",
+    "problems": [
+      121,
+      3,
+      424,
+      76
+    ]
+  },
+  {
+    "topic": "Stack",
+    "icon": "\ud83d\udcda",
+    "problems": [
+      20,
+      155,
+      150,
+      739,
+      853,
+      394,
+      227
+    ]
+  },
+  {
+    "topic": "Binary Search",
+    "icon": "\ud83d\udd0d",
+    "problems": [
+      704,
+      74,
+      875,
+      153,
+      33,
+      981
+    ]
+  },
+  {
+    "topic": "Linked List",
+    "icon": "\ud83d\udd17",
+    "problems": [
+      206,
+      21,
+      141,
+      19,
+      143,
+      2,
+      23,
+      19
+    ]
+  },
+  {
+    "topic": "Trees",
+    "icon": "\ud83c\udf33",
+    "problems": [
+      104,
+      100,
+      226,
+      104,
+      110,
+      543,
+      235,
+      98,
+      230,
+      199,
+      1448
+    ]
+  },
+  {
+    "topic": "Tries",
+    "icon": "\ud83d\udd24",
+    "problems": [
+      208,
+      211,
+      212,
+      336
+    ]
+  },
+  {
+    "topic": "Heap / Priority Queue",
+    "icon": "\ud83d\udcca",
+    "problems": [
+      703,
+      1046,
+      973,
+      215,
+      347,
+      295,
+      355,
+      621
+    ]
+  },
+  {
+    "topic": "Backtracking",
+    "icon": "\u21a9\ufe0f",
+    "problems": [
+      78,
+      17,
+      39,
+      46,
+      90,
+      131,
+      79,
+      51,
+      47
+    ]
+  },
+  {
+    "topic": "Graphs",
+    "icon": "\ud83d\udd78\ufe0f",
+    "problems": [
+      200,
+      133,
+      695,
+      130,
+      417,
+      994,
+      286,
+      207,
+      210,
+      684,
+      323,
+      261
+    ]
+  },
+  {
+    "topic": "Advanced Graphs",
+    "icon": "\ud83c\udf10",
+    "problems": [
+      1135,
+      1584,
+      743,
+      1631,
+      721
+    ]
+  },
+  {
+    "topic": "Dynamic Programming (1D)",
+    "icon": "\ud83d\udcc8",
+    "problems": [
+      70,
+      198,
+      213,
+      91,
+      322,
+      518,
+      139,
+      377,
+      300
+    ]
+  },
+  {
+    "topic": "Dynamic Programming (2D)",
+    "icon": "\ud83d\udcca",
+    "problems": [
+      62,
+      1143,
+      718,
+      647,
+      516,
+      97,
+      64,
+      174
+    ]
+  },
+  {
+    "topic": "Greedy",
+    "icon": "\ud83d\udcb0",
+    "problems": [
+      53,
+      55,
+      846,
+      621,
+      435,
+      678,
+      452
+    ]
+  },
+  {
+    "topic": "Intervals",
+    "icon": "\ud83d\udcd0",
+    "problems": [
+      56,
+      57,
+      435,
+      252,
+      460
+    ]
+  },
+  {
+    "topic": "Bit Manipulation",
+    "icon": "\ud83d\udcbb",
+    "problems": [
+      136,
+      191,
+      338,
+      190,
+      268,
+      371,
+      7,
+      461
+    ]
+  },
+  {
+    "topic": "Math & Geometry",
+    "icon": "\ud83d\udcd0",
+    "problems": [
+      9,
+      48,
+      54,
+      50,
+      43,
+      462,
+      202,
+      268
+    ]
+  },
+  {
+    "topic": "\u2b50 Top 20 Must-Solve Classics",
+    "icon": "\u2b50",
+    "problems": [
+      146,
+      169,
+      283,
+      560,
+      72,
+      84,
+      236,
+      94,
+      88,
+      448,
+      380,
+      160,
+      409,
+      572,
+      232,
+      124,
+      34,
+      189,
+      234,
+      287
+    ],
+    "why": {
+      "146": "\ud83d\udd25 THE most asked interview question. Hash map + doubly linked list.",
+      "169": "Boyer-Moore voting algorithm \u2014 elegant O(1) space.",
+      "283": "Two-pointer in-place manipulation classic.",
+      "560": "Prefix sum + hash map \u2014 key interview pattern.",
+      "72": "THE classic 2D DP problem.",
+      "84": "Monotonic stack masterpiece.",
+      "236": "Tree recursion classic.",
+      "94": "Fundamental tree traversal \u2014 iterative + recursive.",
+      "88": "Merge from the end \u2014 clever two-pointer.",
+      "448": "In-place marking trick \u2014 cycle sort pattern.",
+      "380": "Combined hash map + array design.",
+      "160": "Two-pointer linked list classic.",
+      "409": "Greedy + hash map counting.",
+      "572": "Tree matching pattern.",
+      "232": "Stack\u2194queue conversion \u2014 design fundamentals.",
+      "124": "Hard tree DP \u2014 the hardest tree problem to master.",
+      "34": "Binary search for range \u2014 classic interview question.",
+      "189": "Array rotation tricks \u2014 three-reverse method.",
+      "234": "Find middle + reverse + compare.",
+      "287": "Floyd's algorithm on array \u2014 you already solved this!"
+    }
+  }
+]

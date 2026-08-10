@@ -1,0 +1,127 @@
+{
+  "id": "must-solve-20",
+  "title": "\u2b50 Top 20 Must-Solve Classics",
+  "subtitle": "The most frequently asked interview problems, hand-picked and not in the main roadmap",
+  "problems": [
+    {
+      "id": 146,
+      "name": "LRU Cache",
+      "topic": "Design",
+      "why": "\ud83d\udd25 THE most asked interview question. Hash map + doubly linked list."
+    },
+    {
+      "id": 169,
+      "name": "Majority Element",
+      "topic": "Arrays & Hashing",
+      "why": "Boyer-Moore voting algorithm \u2014 elegant O(1) space."
+    },
+    {
+      "id": 283,
+      "name": "Move Zeroes",
+      "topic": "Two Pointers",
+      "why": "Two-pointer in-place manipulation classic."
+    },
+    {
+      "id": 560,
+      "name": "Subarray Sum Equals K",
+      "topic": "Prefix Sum",
+      "why": "Prefix sum + hash map \u2014 key interview pattern."
+    },
+    {
+      "id": 72,
+      "name": "Edit Distance",
+      "topic": "Dynamic Programming",
+      "why": "THE classic 2D DP problem."
+    },
+    {
+      "id": 84,
+      "name": "Largest Rectangle in Histogram",
+      "topic": "Stack",
+      "why": "Monotonic stack masterpiece."
+    },
+    {
+      "id": 236,
+      "name": "Lowest Common Ancestor",
+      "topic": "Trees",
+      "why": "Tree recursion classic."
+    },
+    {
+      "id": 94,
+      "name": "Binary Tree Inorder Traversal",
+      "topic": "Trees",
+      "why": "Fundamental tree traversal \u2014 iterative + recursive."
+    },
+    {
+      "id": 88,
+      "name": "Merge Sorted Array",
+      "topic": "Two Pointers",
+      "why": "Merge from the end \u2014 clever two-pointer."
+    },
+    {
+      "id": 448,
+      "name": "Find All Numbers Disappeared",
+      "topic": "Arrays & Hashing",
+      "why": "In-place marking trick \u2014 cycle sort pattern."
+    },
+    {
+      "id": 380,
+      "name": "Insert Delete GetRandom O(1)",
+      "topic": "Design",
+      "why": "Combined hash map + array design."
+    },
+    {
+      "id": 160,
+      "name": "Intersection of Two Linked Lists",
+      "topic": "Linked List",
+      "why": "Two-pointer linked list classic."
+    },
+    {
+      "id": 409,
+      "name": "Longest Palindrome",
+      "topic": "Arrays & Hashing",
+      "why": "Greedy + hash map counting."
+    },
+    {
+      "id": 572,
+      "name": "Subtree of Another Tree",
+      "topic": "Trees",
+      "why": "Tree matching pattern."
+    },
+    {
+      "id": 232,
+      "name": "Implement Queue using Stacks",
+      "topic": "Stack",
+      "why": "Stack\u2194queue conversion \u2014 design fundamentals."
+    },
+    {
+      "id": 124,
+      "name": "Binary Tree Maximum Path Sum",
+      "topic": "Trees",
+      "why": "Hard tree DP \u2014 the hardest tree problem to master."
+    },
+    {
+      "id": 34,
+      "name": "Find First and Last Position",
+      "topic": "Binary Search",
+      "why": "Binary search for range \u2014 classic interview question."
+    },
+    {
+      "id": 189,
+      "name": "Rotate Array",
+      "topic": "Arrays & Hashing",
+      "why": "Array rotation tricks \u2014 three-reverse method."
+    },
+    {
+      "id": 234,
+      "name": "Palindrome Linked List",
+      "topic": "Linked List",
+      "why": "Find middle + reverse + compare."
+    },
+    {
+      "id": 287,
+      "name": "Find Duplicate Number",
+      "topic": "Linked List",
+      "why": "Floyd's algorithm on array \u2014 you already solved this!"
+    }
+  ]
+}
