@@ -123,14 +123,16 @@ export function getChapter(id: string): { chapter: Chapter; part: Part } | undef
   }
 }
 
+const notesFile = (id: string) => (/^\d$/.test(id) ? id.padStart(2, "0") : id) + ".md";
+
 export function getNotes(id: string): string | null {
-  const file = path.join(NOTES_DIR, `${id.padStart(2, "0")}.md`);
+  const file = path.join(NOTES_DIR, notesFile(id));
   if (!fs.existsSync(file)) return null;
   return fs.readFileSync(file, "utf8");
 }
 
 export function hasNotes(id: string): boolean {
-  return fs.existsSync(path.join(NOTES_DIR, `${id.padStart(2, "0")}.md`));
+  return fs.existsSync(path.join(NOTES_DIR, notesFile(id)));
 }
 
 export const PDF_OFFSET = 21; // printed page + 21 = PDF page
