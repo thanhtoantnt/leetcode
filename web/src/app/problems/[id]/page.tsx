@@ -88,7 +88,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ id: st
         <p className="mb-4 text-sm leading-relaxed text-slate-400">{inline(p.intro)}</p>
       )}
 
-      <StepPlayer steps={p.steps} mode={p.mode} />
+      <StepPlayer steps={p.steps} />
 
       {p.notes && (
         <section className="mt-6 rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">

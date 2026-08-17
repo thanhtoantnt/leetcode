@@ -40,7 +40,7 @@ export default function Home() {
                   </span>
                 </div>
                 <div className="font-semibold group-hover:text-sky-300">{p.title}</div>
-                <div className="mt-2 text-xs text-slate-500">{p.steps.length} steps · {p.mode === "array" ? "animated cells" : "frame flipbook"}</div>
+                <div className="mt-2 text-xs text-slate-500">{p.steps.length} steps</div>
               </Link>
             )),
           )}

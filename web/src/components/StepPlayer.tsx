@@ -8,51 +8,53 @@ export interface Step {
   frame: string;
 }
 
-function parseArrayFrame(frame: string) {
-  const lines = frame.split("\n");
-  const cellIdx = lines.findIndex((l) => l.trim().startsWith("["));
-  if (cellIdx < 0) return null;
-  const cellLine = lines[cellIdx];
-  const bracket = cellLine.indexOf("[");
-  const inner = cellLine.slice(bracket + 1).replace(/\]\s*$/, "");
-  const tokens = [...inner.matchAll(/\S+/g)].map((m) => ({
-    v: m[0].replace(/,$/, ""),
-    start: bracket + 1 + m.index!,
-  }));
+type Kind = "array" | "rows" | "grid" | "tree";
 
-  const markers: Record<number, string> = {};
-  const next = lines[cellIdx + 1] ?? "";
-  const isMarkerLine = /^[\sA-Za-z]*$/.test(next) && /[A-Za-z]/.test(next);
-  if (isMarkerLine) {
-    for (const m of next.matchAll(/[A-Za-z]+/g)) {
-      const pos = m.index!;
-      let best = 0;
-      let bestDist = Infinity;
-      tokens.forEach((t, i) => {
-        const mid = t.start + t.v.length / 2;
-        const dist = Math.abs(mid - pos);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = i;
-        }
-      });
-      markers[best] = (markers[best] ?? "") + m[0];
-    }
-  }
-
-  const lo = Math.min(...Object.keys(markers).map(Number));
-  const hi = Math.max(...Object.keys(markers).map(Number));
-  const window = Object.keys(markers).length ? { lo, hi } : null;
-
-  const metaLines = lines
-    .slice(cellIdx + 1)
-    .filter((l) => !isMarkerLine || l !== next);
-  return { cells: tokens.map((t) => t.v), markers, window, meta: parseMeta(metaLines.join(" ")) };
+interface Meta {
+  key: string;
+  value: string;
 }
 
-function parseMeta(raw: string): { key: string; value: string }[] {
-  const pairs: { key: string; value: string }[] = [];
-  const re = /([A-Za-z_][\w[\].]*)\s*=\s*(\{[^{}]*\}|\[[^[\]]*\]|"[^"]*"|'[^']*'|\S+)/g;
+interface Parsed {
+  kind: Kind;
+  rows: { label: string; cells: string[]; markers: Record<number, string> }[];
+  window: { lo: number; hi: number } | null;
+  meta: Meta[];
+  tree: string[];
+}
+
+const CELL = /^[.\d-]+$/;
+
+function tokenStarts(prefix: string, rest: string) {
+  return [...rest.matchAll(/\S+/g)].map((m) => ({
+    v: m[0].replace(/,$/, ""),
+    start: prefix.length + m.index!,
+  }));
+}
+
+function attachMarkers(line: string, tokens: { v: string; start: number }[]) {
+  const markers: Record<number, string> = {};
+  if (!/^[\sA-Za-z]*$/.test(line) || !/[A-Za-z]/.test(line)) return markers;
+  for (const m of line.matchAll(/[A-Za-z]+/g)) {
+    const pos = m.index!;
+    let best = 0;
+    let bestDist = Infinity;
+    tokens.forEach((t, i) => {
+      const mid = t.start + t.v.length / 2;
+      const dist = Math.abs(mid - pos);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    });
+    markers[best] = (markers[best] ?? "") + m[0];
+  }
+  return markers;
+}
+
+function parseMeta(raw: string): Meta[] {
+  const pairs: Meta[] = [];
+  const re = /([A-Za-z_][\w[\].]*)=(\{[^{}]*\}|\[[^[\]]*\]|"[^"]*"|'[^']*'|\S+)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw))) pairs.push({ key: m[1], value: m[2] });
   const leftover = raw.replace(re, "").replace(/\s{2,}/g, " ").trim();
@@ -60,7 +62,161 @@ function parseMeta(raw: string): { key: string; value: string }[] {
   return pairs;
 }
 
-export default function StepPlayer({ steps, mode }: { steps: Step[]; mode: "array" | "mono" }) {
+function parseFrame(frame: string): Parsed {
+  const lines = frame.split("\n");
+  if (lines.some((l) => /[├└│]/.test(l))) {
+    return { kind: "tree", rows: [], window: null, meta: [], tree: lines };
+  }
+
+  const arrIdx = lines.findIndex((l) => /\[[^\]]+\]/.test(l.trim()));
+  if (arrIdx >= 0) {
+    const line = lines[arrIdx];
+    const bracket = line.indexOf("[");
+    const inner = line.slice(bracket + 1).replace(/\]\s*$/, "");
+    const tokens = tokenStarts(line.slice(0, bracket + 1), inner);
+    const next = lines[arrIdx + 1] ?? "";
+    const markers = attachMarkers(next, tokens);
+    const keys = Object.keys(markers).map(Number);
+    const metaLines = lines.slice(arrIdx + 1).filter((l) => l !== next || !Object.keys(markers).length);
+    return {
+      kind: "array",
+      rows: [{ label: "", cells: tokens.map((t) => t.v), markers }],
+      window: keys.length ? { lo: Math.min(...keys), hi: Math.max(...keys) } : null,
+      meta: parseMeta(metaLines.join(" ")),
+      tree: [],
+    };
+  }
+
+  const rows: Parsed["rows"] = [];
+  const leftover: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const labeled = line.match(/^(\w+):\s+(\S.*)$/);
+    if (labeled) {
+      const tokens = tokenStarts(labeled[0].slice(0, labeled[0].length - labeled[2].length), labeled[2]);
+      if (tokens.length && tokens.every((t) => CELL.test(t.v))) {
+        const next = lines[i + 1] ?? "";
+        const markers = attachMarkers(next, tokens);
+        if (Object.keys(markers).length) i++;
+        rows.push({ label: labeled[1], cells: tokens.map((t) => t.v), markers });
+        continue;
+      }
+    }
+    const grid = line.match(/^(\s*)([\d.](?:\s+[\d.])+)\s*$/);
+    if (grid) {
+      const tokens = tokenStarts(grid[1], grid[2]);
+      rows.push({ label: "", cells: tokens.map((t) => t.v), markers: {} });
+      continue;
+    }
+    if (line.trim()) leftover.push(line);
+  }
+
+  if (rows.length) {
+    const kind: Kind = rows.some((r) => r.label) ? "rows" : "grid";
+    return { kind, rows, window: null, meta: parseMeta(leftover.join(" ")), tree: [] };
+  }
+
+  return { kind: "tree", rows: [], window: null, meta: [], tree: lines };
+}
+
+function cellClass(opts: { mark?: string; inWin?: boolean; empty?: boolean; fresh?: boolean; source?: boolean }) {
+  if (opts.mark) return "border-sky-400 bg-sky-500/30 text-white";
+  if (opts.fresh) return "border-amber-400/70 bg-amber-500/20 text-amber-100";
+  if (opts.inWin) return "border-sky-400/40 bg-sky-500/10 text-slate-100";
+  if (opts.empty) return "border-[var(--card-border)] bg-transparent text-slate-700";
+  if (opts.source) return "border-slate-600 bg-slate-800/80 text-slate-300";
+  return "border-[var(--card-border)] bg-black/30 text-slate-400";
+}
+
+function Cells({
+  cells,
+  markers,
+  window,
+  prev,
+  showIndex,
+}: {
+  cells: string[];
+  markers: Record<number, string>;
+  window?: { lo: number; hi: number } | null;
+  prev?: string[];
+  showIndex?: boolean;
+}) {
+  return (
+    <div className="flex items-end justify-center gap-2 font-mono">
+      {cells.map((c, idx) => {
+        const mark = markers[idx];
+        const empty = c === ".";
+        const fresh = !!prev && prev[idx] !== c;
+        const inWin = !!window && idx >= window.lo && idx <= window.hi;
+        return (
+          <div key={idx} className="flex flex-col items-center gap-1">
+            {showIndex && <span className="text-[10px] text-slate-600">{idx}</span>}
+            <div
+              className={`flex h-12 min-w-12 items-center justify-center rounded-lg border-2 px-2 text-lg font-semibold transition-colors duration-300 ${cellClass({
+                mark,
+                inWin,
+                empty,
+                fresh,
+                source: c === "0",
+              })}`}
+            >
+              {c}
+            </div>
+            <div className="h-5 text-xs font-bold text-sky-300">{mark ?? ""}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MetaChips({ meta }: { meta: Meta[] }) {
+  if (!meta.length) return null;
+  return (
+    <div className="mt-5 flex flex-wrap justify-center gap-2">
+      {meta.map((p, k) =>
+        p.key ? (
+          <span key={k} className="rounded-md border border-[var(--card-border)] bg-black/40 px-2.5 py-1 font-mono text-xs">
+            <span className="text-slate-500">{p.key}</span>
+            <span className="mx-1 text-slate-600">=</span>
+            <span className="text-sky-200">{p.value}</span>
+          </span>
+        ) : (
+          <span key={k} className="px-1 py-1 font-mono text-xs text-amber-200">
+            {p.value}
+          </span>
+        ),
+      )}
+    </div>
+  );
+}
+
+function TreeView({ lines, prev }: { lines: string[]; prev?: string[] }) {
+  const seen = new Set(prev ?? []);
+  return (
+    <div className="w-full overflow-x-auto rounded-lg bg-black/40 p-4 font-mono text-sm leading-6">
+      {lines.map((line, i) => {
+        const fresh = !seen.has(line);
+        const ok = line.includes("✓");
+        const bad = /✗|dead/.test(line);
+        const color = ok
+          ? "text-emerald-300"
+          : bad
+            ? "text-rose-400/80"
+            : fresh
+              ? "text-sky-200"
+              : "text-slate-500";
+        return (
+          <div key={i} className={`whitespace-pre ${color} ${fresh && !ok && !bad ? "font-medium" : ""}`}>
+            {line || " "}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function StepPlayer({ steps }: { steps: Step[] }) {
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(false);
   const step = steps[i];
@@ -91,10 +247,8 @@ export default function StepPlayer({ steps, mode }: { steps: Step[]; mode: "arra
     return () => window.removeEventListener("keydown", onKey);
   }, [next, prev]);
 
-  const parsed = useMemo(
-    () => (mode === "array" && step ? parseArrayFrame(step.frame) : null),
-    [mode, step],
-  );
+  const parsed = useMemo(() => (step ? parseFrame(step.frame) : null), [step]);
+  const prevParsed = useMemo(() => (i > 0 ? parseFrame(steps[i - 1].frame) : null), [i, steps]);
 
   return (
     <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-6">
@@ -106,57 +260,43 @@ export default function StepPlayer({ steps, mode }: { steps: Step[]; mode: "arra
       </p>
 
       <div className="my-6 min-h-[12rem] flex items-center justify-center">
-        {parsed ? (
-          <div className="w-full">
-            <div className="flex items-end justify-center gap-2 font-mono">
-              {parsed.cells.map((c, idx) => {
-                const mark = parsed.markers[idx];
-                const inWin = parsed.window && idx >= parsed.window.lo && idx <= parsed.window.hi;
-                return (
-                  <div key={idx} className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] text-slate-600">{idx}</span>
-                    <div
-                      className={`flex h-14 min-w-14 items-center justify-center rounded-lg border-2 px-2 text-xl font-semibold transition-colors duration-300 ${
-                        mark
-                          ? "border-sky-400 bg-sky-500/30 text-white"
-                          : inWin
-                            ? "border-sky-400/40 bg-sky-500/10 text-slate-100"
-                            : "border-[var(--card-border)] bg-black/30 text-slate-500"
-                      }`}
-                    >
-                      {c}
-                    </div>
-                    <div className="h-5 text-xs font-bold text-sky-300">{mark ?? ""}</div>
-                  </div>
-                );
-              })}
-            </div>
-            {parsed.meta.length > 0 && (
-              <div className="mt-5 flex flex-wrap justify-center gap-2">
-                {parsed.meta.map((p, k) =>
-                  p.key ? (
-                    <span
-                      key={k}
-                      className="rounded-md border border-[var(--card-border)] bg-black/40 px-2.5 py-1 font-mono text-xs"
-                    >
-                      <span className="text-slate-500">{p.key}</span>
-                      <span className="mx-1 text-slate-600">=</span>
-                      <span className="text-sky-200">{p.value}</span>
-                    </span>
-                  ) : (
-                    <span key={k} className="px-1 py-1 font-mono text-xs text-amber-200">
-                      {p.value}
-                    </span>
-                  ),
-                )}
+        {parsed?.kind === "tree" ? (
+          <TreeView lines={parsed.tree} prev={prevParsed?.tree} />
+        ) : parsed?.kind === "rows" ? (
+          <div className="w-full space-y-3">
+            {parsed.rows.map((row, ri) => (
+              <div key={ri} className="flex items-center justify-center gap-3">
+                <span className="w-16 text-right font-mono text-xs text-slate-500">{row.label}</span>
+                <Cells
+                  cells={row.cells}
+                  markers={row.markers}
+                  prev={prevParsed?.rows[ri]?.cells}
+                  showIndex={ri === 0}
+                />
               </div>
-            )}
+            ))}
+            <MetaChips meta={parsed.meta} />
           </div>
-        ) : (
-          <pre key={i} className="fade-step w-full overflow-x-auto rounded-lg bg-black/40 p-4 font-mono text-sm leading-relaxed text-slate-200">
-            {step?.frame}
-          </pre>
-        )}
+        ) : parsed?.kind === "grid" ? (
+          <div className="w-full">
+            <div className="flex flex-col items-center gap-1">
+              {parsed.rows.map((row, ri) => (
+                <Cells key={ri} cells={row.cells} markers={row.markers} prev={prevParsed?.rows[ri]?.cells} />
+              ))}
+            </div>
+            <MetaChips meta={parsed.meta} />
+          </div>
+        ) : parsed?.kind === "array" ? (
+          <div className="w-full">
+            <Cells
+              cells={parsed.rows[0].cells}
+              markers={parsed.rows[0].markers}
+              window={parsed.window}
+              showIndex
+            />
+            <MetaChips meta={parsed.meta} />
+          </div>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-center gap-3">
