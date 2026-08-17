@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import StepPlayer from "@/components/StepPlayer";
+import { problemHref } from "@/components/Notes";
 import { getProblem, getSolutionCode, getVisualized } from "@/lib/content";
 
 export function generateStaticParams() {
@@ -30,8 +31,16 @@ function Prose({ text }: { text: string }) {
 }
 
 function inline(s: string) {
-  const parts = s.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+  const parts = s.split(/(`[^`]+`|\*\*[^*]+\*\*|problems?\s+\d{1,4}|\b0\d{3}\b)/g);
   return parts.map((part, i) => {
+    const dirRef = part.match(/`([\w-]+)\/(\d{4})`/);
+    if (dirRef && problemHref(dirRef[2])) {
+      return (
+        <Link key={i} href={problemHref(dirRef[2])!} className="text-sky-400 underline decoration-sky-400/40 hover:text-sky-300">
+          {dirRef[1]}/{dirRef[2]}
+        </Link>
+      );
+    }
     if (part.startsWith("`") && part.endsWith("`")) {
       return (
         <code key={i} className="rounded bg-white/10 px-1 py-0.5 font-mono text-[0.85em] text-sky-200">
@@ -44,6 +53,21 @@ function inline(s: string) {
         <strong key={i} className="font-semibold text-slate-100">
           {part.slice(2, -2)}
         </strong>
+      );
+    }
+    const probRef = part.match(/problems?\s+(\d{1,4})/);
+    if (probRef && problemHref(probRef[1])) {
+      return (
+        <Link key={i} href={problemHref(probRef[1])!} className="text-sky-400 underline decoration-sky-400/40 hover:text-sky-300">
+          {part}
+        </Link>
+      );
+    }
+    if (/^0\d{3}$/.test(part) && problemHref(part)) {
+      return (
+        <Link key={i} href={problemHref(part)!} className="text-sky-400 underline decoration-sky-400/40 hover:text-sky-300">
+          {part}
+        </Link>
       );
     }
     return part;
