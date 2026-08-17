@@ -62,6 +62,16 @@ export default function Notes({ text }: { text: string }) {
   let i = 0;
   while (i < blocks.length) {
     const block = blocks[i];
+    const fence = block.match(/^```(?:\w+)?\n([\s\S]*?)```$/);
+    if (fence) {
+      out.push(
+        <pre key={i} className="my-4 overflow-x-auto rounded-lg bg-black/40 p-4 font-mono text-xs leading-relaxed text-slate-200">
+          {fence[1].replace(/\n$/, "")}
+        </pre>,
+      );
+      i++;
+      continue;
+    }
     const h = block.match(/^(#{2,3})\s+(.+)$/);
     if (h) {
       const Tag = h[1] === "##" ? "h2" : "h3";
