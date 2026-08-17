@@ -22,5 +22,5 @@ if __name__ == "__main__":
     assert Solution().checkValidString("()")
     assert Solution().checkValidString("(*)")
     assert Solution().checkValidString("(*))")
-    assert not Solution().checkValidString("((*)")
+    assert not Solution().checkValidString(")(")
     print("ok")
