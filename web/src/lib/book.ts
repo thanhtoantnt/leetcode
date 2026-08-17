@@ -36,10 +36,10 @@ export const PARTS: Part[] = [
     id: "II",
     title: "Sorting and Order Statistics",
     chapters: [
-      { id: "6", title: "Heapsort", pdf: 172, related: [{ href: "/problems", label: "queue/ — heaps as priority queues" }] },
+      { id: "6", title: "Heapsort", pdf: 172, related: [{ href: "/problems", label: "queue/ — 0215, 0703, 0973, 1046 are heap problems" }] },
       { id: "7", title: "Quicksort", pdf: 191 },
       { id: "8", title: "Sorting in Linear Time", pdf: 212 },
-      { id: "9", title: "Medians and Order Statistics", pdf: 234 },
+      { id: "9", title: "Medians and Order Statistics", pdf: 234, related: [{ href: "/problems", label: "queue/0215 — k-th largest via heap (quickselect's cousin)" }] },
     ],
   },
   {
