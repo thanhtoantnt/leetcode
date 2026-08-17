@@ -1,75 +1,48 @@
 import Link from "next/link";
-import { getSolutionIndex, getVisualized } from "@/lib/content";
-
-const patternOrder = (p: string) => p; // groups arrive sorted by file count
+import { getVisualized, getSolutionIndex } from "@/lib/content";
+import { getChapters, hasNotes } from "@/lib/book";
 
 export default function Home() {
   const visualized = getVisualized();
-  const byPattern = new Map<string, typeof visualized>();
-  for (const p of visualized) {
-    byPattern.set(p.pattern, [...(byPattern.get(p.pattern) ?? []), p]);
-  }
-  const solutions = getSolutionIndex(new Set(visualized.map((p) => p.id)));
+  const nSol = getSolutionIndex(new Set()).reduce((n, s) => n + s.files.length, 0);
+  const nNotes = getChapters().filter((c) => hasNotes(c.id)).length;
 
   return (
     <main>
-      <h1 className="mb-2 text-2xl font-bold">Learn by watching the algorithm run</h1>
+      <h1 className="mb-2 text-2xl font-bold">Two ways in</h1>
       <p className="mb-10 text-sm text-slate-400">
-        Each visualized problem is a recorded run of its solution: one frame per decision,
-        with pointers, windows, and DP cells highlighted. Every solution lives in{" "}
-        <a href="https://github.com/thanhtoantnt/leetcode" className="text-sky-400 hover:underline">
-          the repo
-        </a>{" "}
-        next to its explanation.
+        Work problems, or read the book. Same algorithms, different door.
       </p>
 
-      <section className="mb-14">
-        <h2 className="mb-4 text-lg font-semibold">Visualized · {visualized.length}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[...byPattern.entries()].map(([pattern, probs]) =>
-            probs.map((p) => (
-              <Link
-                key={p.id}
-                href={`/problems/${p.id}`}
-                className="group rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5 transition-colors hover:border-sky-500/50"
-              >
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="font-mono text-xs text-slate-500">#{p.num}</span>
-                  <span className="rounded bg-sky-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sky-300">
-                    {p.pattern.replace(/_/g, " ")}
-                  </span>
-                </div>
-                <div className="font-semibold group-hover:text-sky-300">{p.title}</div>
-                <div className="mt-2 text-xs text-slate-500">{p.steps.length} steps</div>
-              </Link>
-            )),
-          )}
-        </div>
-      </section>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link
+          href="/problems"
+          className="group rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-6 transition-colors hover:border-sky-500/50"
+        >
+          <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-sky-400">LeetCode</div>
+          <div className="mb-2 text-xl font-semibold group-hover:text-sky-300">Problems</div>
+          <p className="mb-4 text-sm text-slate-400">
+            Animated walkthroughs of solutions in this repo. One frame per decision.
+          </p>
+          <div className="text-xs text-slate-500">
+            {visualized.length} visualized · {nSol} solutions
+          </div>
+        </Link>
 
-      <section>
-        <h2 className="mb-4 text-lg font-semibold">All solutions · {solutions.reduce((n, s) => n + s.files.length, 0)}</h2>
-        <div className="space-y-4">
-          {solutions.map((s) => (
-            <details key={s.pattern} className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-              <summary className="cursor-pointer text-sm font-medium">
-                {patternOrder(s.pattern).replace(/_/g, " ")}{" "}
-                <span className="text-slate-500">({s.files.length})</span>
-              </summary>
-              <ul className="mt-3 grid gap-1 sm:grid-cols-2">
-                {s.files.map((f) => (
-                  <li key={f.name} className="truncate text-xs">
-                    {f.visualized ? "★ " : ""}
-                    <a href={f.url} className="font-mono text-slate-400 hover:text-sky-400">
-                      {f.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          ))}
-        </div>
-      </section>
+        <Link
+          href="/book"
+          className="group rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-6 transition-colors hover:border-sky-500/50"
+        >
+          <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400">CLRS 3rd ed.</div>
+          <div className="mb-2 text-xl font-semibold group-hover:text-sky-300">Introduction to Algorithms</div>
+          <p className="mb-4 text-sm text-slate-400">
+            Chapter notes and a map from the book onto the pattern folders.
+          </p>
+          <div className="text-xs text-slate-500">
+            {getChapters().length} chapters · {nNotes} with notes
+          </div>
+        </Link>
+      </div>
     </main>
   );
 }

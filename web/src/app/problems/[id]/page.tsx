@@ -60,7 +60,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ id: st
   return (
     <main>
       <div className="mb-1 flex items-center justify-between text-sm">
-        <Link href="/" className="text-slate-400 hover:text-sky-400">
+        <Link href="/problems" className="text-slate-400 hover:text-sky-400">
           ← all problems
         </Link>
         <span className="rounded bg-sky-500/15 px-2 py-0.5 text-xs uppercase tracking-wide text-sky-300">

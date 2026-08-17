@@ -2,7 +2,7 @@
 
 **Live site:** https://thanhtoantnt.github.io/leetcode/
 
-Solutions organized by pattern, plus animated flipbook explanations for a few of them.
+Two halves: [LeetCode problems](https://thanhtoantnt.github.io/leetcode/problems) (animated walkthroughs) and [CLRS](https://thanhtoantnt.github.io/leetcode/book) (chapter notes).
 
 ## Layout
 
