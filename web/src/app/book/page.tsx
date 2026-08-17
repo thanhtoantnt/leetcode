@@ -4,19 +4,7 @@ import { PARTS, hasNotes } from "@/lib/book";
 export default function BookPage() {
   return (
     <main>
-      <h1 className="mb-2 text-2xl font-bold">Introduction to Algorithms</h1>
-      <p className="mb-2 text-sm text-slate-400">
-        Cormen, Leiserson, Rivest, Stein — 3rd edition (2009). These are our notes, not the book.
-        Official site:{" "}
-        <a href="https://mitpress.mit.edu/9780262033848/introduction-to-algorithms/" className="text-sky-400 hover:underline">
-          MIT Press
-        </a>
-        .
-      </p>
-      <p className="mb-10 text-sm text-slate-500">
-        Chapters with notes open a walkthrough. The rest are placeholders — add{" "}
-        <code className="rounded bg-white/10 px-1 font-mono text-xs">web/content/book/NN.md</code> to fill one in.
-      </p>
+      <h1 className="mb-10 text-2xl font-bold">Introduction to Algorithms</h1>
 
       <div className="space-y-10">
         {PARTS.map((part) => (
