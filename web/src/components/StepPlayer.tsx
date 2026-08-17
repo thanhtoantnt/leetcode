@@ -11,28 +11,53 @@ export interface Step {
 function parseArrayFrame(frame: string) {
   const lines = frame.split("\n");
   const cellIdx = lines.findIndex((l) => l.trim().startsWith("["));
+  if (cellIdx < 0) return null;
   const cellLine = lines[cellIdx];
-  const inner = cellLine.trim().replace(/^\[|\]$/g, "");
-  const tokens = [...inner.matchAll(/\S+/g)].map((m) => ({ v: m[0], start: m.index! }));
+  const bracket = cellLine.indexOf("[");
+  const inner = cellLine.slice(bracket + 1).replace(/\]\s*$/, "");
+  const tokens = [...inner.matchAll(/\S+/g)].map((m) => ({
+    v: m[0].replace(/,$/, ""),
+    start: bracket + 1 + m.index!,
+  }));
+
   const markers: Record<number, string> = {};
   const next = lines[cellIdx + 1] ?? "";
-  if (/^[\sA-Za-z]*$/.test(next) && next.trim()) {
+  const isMarkerLine = /^[\sA-Za-z]*$/.test(next) && /[A-Za-z]/.test(next);
+  if (isMarkerLine) {
     for (const m of next.matchAll(/[A-Za-z]+/g)) {
-      const pos = m.index! + Math.floor(m[0].length / 2);
-      let best = -1;
+      const pos = m.index!;
+      let best = 0;
       let bestDist = Infinity;
       tokens.forEach((t, i) => {
-        const dist = Math.abs(t.start - pos);
+        const mid = t.start + t.v.length / 2;
+        const dist = Math.abs(mid - pos);
         if (dist < bestDist) {
           bestDist = dist;
           best = i;
         }
       });
-      if (best >= 0) markers[best] = (markers[best] ?? "") + m[0];
+      markers[best] = (markers[best] ?? "") + m[0];
     }
   }
-  const meta = lines.slice(cellIdx + 1).filter((l) => l !== next || !/^[\sA-Za-z]*$/.test(l)).join("\n").trim();
-  return { cells: tokens.map((t) => t.v), markers, meta };
+
+  const lo = Math.min(...Object.keys(markers).map(Number));
+  const hi = Math.max(...Object.keys(markers).map(Number));
+  const window = Object.keys(markers).length ? { lo, hi } : null;
+
+  const metaLines = lines
+    .slice(cellIdx + 1)
+    .filter((l) => !isMarkerLine || l !== next);
+  return { cells: tokens.map((t) => t.v), markers, window, meta: parseMeta(metaLines.join(" ")) };
+}
+
+function parseMeta(raw: string): { key: string; value: string }[] {
+  const pairs: { key: string; value: string }[] = [];
+  const re = /([A-Za-z_][\w[\].]*)\s*=\s*(\{[^{}]*\}|\[[^[\]]*\]|"[^"]*"|'[^']*'|\S+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw))) pairs.push({ key: m[1], value: m[2] });
+  const leftover = raw.replace(re, "").replace(/\s{2,}/g, " ").trim();
+  if (leftover) pairs.push({ key: "", value: leftover });
+  return pairs;
 }
 
 export default function StepPlayer({ steps, mode }: { steps: Step[]; mode: "array" | "mono" }) {
@@ -66,42 +91,69 @@ export default function StepPlayer({ steps, mode }: { steps: Step[]; mode: "arra
     return () => window.removeEventListener("keydown", onKey);
   }, [next, prev]);
 
-  const parsed = useMemo(() => (mode === "array" && step ? parseArrayFrame(step.frame) : null), [mode, step]);
+  const parsed = useMemo(
+    () => (mode === "array" && step ? parseArrayFrame(step.frame) : null),
+    [mode, step],
+  );
 
   return (
     <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-6">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="text-sm text-slate-300">
-          <span className="mr-2 rounded bg-sky-500/20 px-2 py-0.5 font-mono text-xs text-sky-300">step {i + 1}/{steps.length}</span>
-          {step?.caption}
-        </p>
-      </div>
+      <p className="text-sm text-slate-200">
+        <span className="mr-2 rounded bg-sky-500/20 px-2 py-0.5 font-mono text-xs text-sky-300">
+          step {i + 1}/{steps.length}
+        </span>
+        {step?.caption}
+      </p>
 
-      <div className="my-6 min-h-[10rem] flex items-center justify-center">
+      <div className="my-6 min-h-[12rem] flex items-center justify-center">
         {parsed ? (
-          <div>
-            <div className="flex items-end gap-1.5 font-mono">
-              {parsed.cells.map((c, idx) => (
-                <div key={idx} className="flex flex-col items-center">
-                  <div
-                    className={`flex h-12 min-w-12 items-center justify-center rounded-lg border px-2 text-lg transition-colors duration-300 ${
-                      parsed.markers[idx]
-                        ? "border-sky-400 bg-sky-500/25 text-white"
-                        : "border-[var(--card-border)] bg-black/30 text-slate-300"
-                    }`}
-                  >
-                    {c}
+          <div className="w-full">
+            <div className="flex items-end justify-center gap-2 font-mono">
+              {parsed.cells.map((c, idx) => {
+                const mark = parsed.markers[idx];
+                const inWin = parsed.window && idx >= parsed.window.lo && idx <= parsed.window.hi;
+                return (
+                  <div key={idx} className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] text-slate-600">{idx}</span>
+                    <div
+                      className={`flex h-14 min-w-14 items-center justify-center rounded-lg border-2 px-2 text-xl font-semibold transition-colors duration-300 ${
+                        mark
+                          ? "border-sky-400 bg-sky-500/30 text-white"
+                          : inWin
+                            ? "border-sky-400/40 bg-sky-500/10 text-slate-100"
+                            : "border-[var(--card-border)] bg-black/30 text-slate-500"
+                      }`}
+                    >
+                      {c}
+                    </div>
+                    <div className="h-5 text-xs font-bold text-sky-300">{mark ?? ""}</div>
                   </div>
-                  <div className="h-5 text-xs font-bold text-sky-300">{parsed.markers[idx] ?? ""}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-            {parsed.meta && (
-              <pre className="mt-3 text-center font-mono text-sm text-slate-400 whitespace-pre-wrap">{parsed.meta}</pre>
+            {parsed.meta.length > 0 && (
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {parsed.meta.map((p, k) =>
+                  p.key ? (
+                    <span
+                      key={k}
+                      className="rounded-md border border-[var(--card-border)] bg-black/40 px-2.5 py-1 font-mono text-xs"
+                    >
+                      <span className="text-slate-500">{p.key}</span>
+                      <span className="mx-1 text-slate-600">=</span>
+                      <span className="text-sky-200">{p.value}</span>
+                    </span>
+                  ) : (
+                    <span key={k} className="px-1 py-1 font-mono text-xs text-amber-200">
+                      {p.value}
+                    </span>
+                  ),
+                )}
+              </div>
             )}
           </div>
         ) : (
-          <pre key={i} className="fade-step rounded-lg bg-black/40 p-4 font-mono text-sm leading-relaxed text-slate-200">
+          <pre key={i} className="fade-step w-full overflow-x-auto rounded-lg bg-black/40 p-4 font-mono text-sm leading-relaxed text-slate-200">
             {step?.frame}
           </pre>
         )}

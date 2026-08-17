@@ -1,7 +1,14 @@
-# 3 — Longest Substring Without Repeating Characters, visualized
+# 3 — Longest Substring Without Repeating Characters
 
-Mirrors `SolutionOpt.lengthOfLongestSubstring` in the `.py` next to this file.
-Input `s = "abcba"`. Window `[left, right]` stays duplicate-free; `char_map` remembers each char's last index.
+## Problem
+
+Given a string `s`, return the length of the longest substring that contains no repeating characters.
+
+**Example:** `s = "abcba"` → `3` (`"abc"` or `"cba"`)
+
+## Walkthrough
+
+Window `[left, right]` stays duplicate-free. `char_map` remembers each char's last index.
 
 **[1] right=0 'a' — new char, window grows**
 ```text

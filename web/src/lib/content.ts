@@ -18,6 +18,7 @@ export interface Problem {
   pattern: string;
   mode: "array" | "mono";
   steps: Step[];
+  problem: string;
   intro: string;
   notes: string;
   pyFile?: string;
@@ -43,17 +44,31 @@ function parseFlipbook(md: string, slug: string): Omit<Problem, "id" | "num" | "
   while ((m = STEP_RE.exec(md))) {
     if (steps.length === 0) firstStart = m.index;
     lastEnd = STEP_RE.lastIndex;
-    steps.push({ n: parseInt(m[1], 10), caption: m[2].trim(), frame: m[3].replace(/\n$/, "") });
+    steps.push({
+      n: parseInt(m[1], 10),
+      caption: m[2].replace(/\*+$/, "").trim(),
+      frame: m[3].replace(/\n$/, ""),
+    });
   }
   const heading = md.match(/^#\s+(.+)$/m)?.[1] ?? titleFromSlug(slug);
   const title = heading.replace(/,?\s*visualized\.?$/i, "").replace(/^\d+\s*[—-]\s*/, "");
-  const intro = md
-    .slice(md.indexOf("\n"), firstStart)
-    .trim();
+  const problem = section(md, "Problem");
+  const walk = section(md, "Walkthrough");
+  const intro =
+    walk ||
+    md.slice(md.indexOf("\n"), firstStart).replace(/^##\s+Problem[\s\S]*?(?=##\s+Walkthrough|$)/i, "").trim();
   const notes = md.slice(lastEnd).trim();
   const firstFrameLine = steps[0]?.frame.split("\n").find((l) => l.trim()) ?? "";
-  const mode: "array" | "mono" = firstFrameLine.trim().startsWith("[") ? "array" : "mono";
-  return { title, mode, steps, intro, notes };
+  const mode: "array" | "mono" = /\[[^\]]+\]/.test(firstFrameLine) ? "array" : "mono";
+  return { title, mode, steps, problem, intro, notes };
+}
+
+function section(md: string, name: string): string {
+  const start = md.search(new RegExp(`^## ${name}\s*$`, "im"));
+  if (start < 0) return "";
+  const after = md.indexOf("\n", start) + 1;
+  const next = md.slice(after).search(/^## |^\*\*\[/m);
+  return md.slice(after, next < 0 ? undefined : after + next).trim();
 }
 
 export function getVisualized(): Problem[] {

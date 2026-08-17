@@ -1,9 +1,14 @@
-# 198 — House Robber, visualized
+# 198 — House Robber
 
-Mirrors the dp recurrence in `0198_house-robber.py`:
-`dp[i] = max(dp[i-1], nums[i] + dp[i-2])` — skip the house, or rob it (and take the best from two back).
+## Problem
 
-Input `nums = [2, 7, 9, 3, 1]`. Unfilled cells shown as `.`.
+You rob houses along a street. `nums[i]` is the cash in house `i`. Adjacent houses have linked alarms — you cannot rob two neighbors. Return the maximum you can rob.
+
+**Example:** `nums = [2, 7, 9, 3, 1]` → `12` (houses `2 + 9 + 1`)
+
+## Walkthrough
+
+`dp[i] = max(dp[i-1], nums[i] + dp[i-2])` — skip this house, or rob it and take the best from two back. Unfilled cells shown as `.`.
 
 **[1] base cases**
 ```text

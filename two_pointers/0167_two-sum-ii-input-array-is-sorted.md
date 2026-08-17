@@ -1,7 +1,14 @@
-# 167 — Two Sum II (sorted array), visualized
+# 167 — Two Sum II (sorted array)
 
-Input `numbers = [2, 7, 11, 15]`, `target = 9`. Sorted → two pointers from both ends.
-Sum too big → move `right` left. Sum too small → move `left` right.
+## Problem
+
+Given a 1-indexed **sorted** array `numbers` and a `target`, find the two numbers that add up to `target`. Return their 1-indexed positions. Exactly one solution; you may not use the same element twice.
+
+**Example:** `numbers = [2, 7, 11, 15]`, `target = 9` → `[1, 2]` because `2 + 7 = 9`
+
+## Walkthrough
+
+Two pointers from both ends. Sum too big → move `right` left. Sum too small → move `left` right.
 
 **[1] start**
 ```text

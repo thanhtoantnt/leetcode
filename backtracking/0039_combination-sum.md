@@ -1,8 +1,14 @@
-# 39 — Combination Sum, visualized (backtracking decision tree)
+# 39 — Combination Sum
 
-Candidates `[2, 3, 5]`, `target = 8` (the classic example). Each frame grows the tree one node.
-Rule: children may only use candidates at or after the current index (no looking back → no duplicate combos).
-`rem` = remaining target. Note: the `.py` next door solves it with a dp-table variant — this tree is the canonical backtracking view.
+## Problem
+
+Given distinct integers `candidates` and a `target`, return every unique combination that sums to `target`. A number may be chosen unlimited times. Order does not matter (`[2,3]` and `[3,2]` are the same).
+
+**Example:** `candidates = [2, 3, 5]`, `target = 8` → `[[2,2,2,2], [2,3,3], [3,5]]`
+
+## Walkthrough
+
+Each frame grows the decision tree one node. Children may only use candidates at or after the current index (no looking back → no duplicate combos). `rem` = remaining target. The `.py` next door solves it with a dp-table variant — this tree is the canonical backtracking view.
 
 **[1] root**
 ```text
